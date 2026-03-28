@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Iniciar Sesión | Tu Panel</title>
+  <!-- Fuente moderna y limpia desde Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 (gratuito, CDN) para iconos elegantes -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- CSS personalizado -->
+  <link rel="stylesheet" href="static/stylelogin.css">
+</head>
+<body>
+
+<div class="login-card">
+  <div class="card-header">
+    <div class="logo-area">
+      <i class="fas fa-laptop-code"></i>
+    </div>
+    <h1>Bienvenido</h1>
+    <p>Ingresa a tu cuenta para continuar</p>
+  </div>
+
+  <div class="login-form">
+    <!-- Contenedor de mensaje de error -->
+    <div id="errorBox" class="error-message">
+      <i class="fas fa-exclamation-circle"></i>
+      <span id="errorText">Credenciales inválidas</span>
+    </div>
+
+    <!-- Formulario nativo con preventDefault -->
+    <form id="loginForm" action="#" method="post">
+      <div class="input-group">
+        <label><i class="fas fa-envelope"></i> Correo electrónico</label>
+        <i class="fas fa-envelope input-icon"></i>
+        <input type="email" id="email" class="input-field" placeholder="usuario@ejemplo.com" required autocomplete="email">
+      </div>
+
+      <div class="input-group">
+        <label><i class="fas fa-lock"></i> Contraseña</label>
+        <i class="fas fa-key input-icon"></i>
+        <input type="password" id="password" class="input-field" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+
+      <div class="options-row">
+        <label class="remember">
+          <input type="checkbox" id="rememberCheck"> Recordarme
+        </label>
+        <a href="#" class="forgot-link" id="forgotPasswordLink">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button type="submit" class="btn-login">
+        <i class="fas fa-arrow-right-to-bracket"></i> Iniciar sesión
+      </button>
+    </form>
+
+    <div class="divider">
+      <span>O continúa con</span>
+    </div>
+
+    <div class="social-buttons">
+      <button class="social-btn google" id="googleLoginBtn">
+        <i class="fab fa-google"></i> Google
+      </button>
+      <button class="social-btn github" id="githubLoginBtn">
+        <i class="fab fa-github"></i> GitHub
+      </button>
+    </div>
+
+    <div class="signup-prompt">
+      ¿No tienes una cuenta?
+      <a href="#" id="signupLink">Crear cuenta</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Elementos del DOM
+  const loginForm = document.getElementById('loginForm');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const errorBox = document.getElementById('errorBox');
+  const errorTextSpan = document.getElementById('errorText');
+  const rememberCheck = document.getElementById('rememberCheck');
+  const forgotLink = document.getElementById('forgotPasswordLink');
+  const googleBtn = document.getElementById('googleLoginBtn');
+  const githubBtn = document.getElementById('githubLoginBtn');
+  const signupLink = document.getElementById('signupLink');
+
+  // --- FUNCIÓN PARA MOSTRAR ERRORES ---
+  function showError(message) {
+    errorTextSpan.innerText = message;
+    errorBox.classList.add('show');
+    // Auto-ocultar después de 4 segundos
+    setTimeout(() => {
+      errorBox.classList.remove('show');
+    }, 4000);
+  }
+
+  // Limpiar error cuando el usuario empiece a escribir (mejora UX)
+  function clearErrorOnInput() {
+    emailInput.addEventListener('input', () => errorBox.classList.remove('show'));
+    passwordInput.addEventListener('input', () => errorBox.classList.remove('show'));
+  }
+  clearErrorOnInput();
+
+  // --- SIMULACIÓN DE AUTENTICACIÓN (puedes reemplazar con llamada real a backend) ---
+  // Credenciales válidas de ejemplo: admin@demo.com / password123
+  // También acepta: usuario@prueba.com / 12345678
+  function validateCredentials(email, password) {
+    // Normalizar email (minúsculas para evitar case sensitive en ejemplo)
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPass = password.trim();
+
+    // Conjunto de credenciales demo (solo para probar el login)
+    if (
+      (normalizedEmail === 'admin@demo.com' && normalizedPass === 'password123') ||
+      (normalizedEmail === 'usuario@prueba.com' && normalizedPass === '12345678') ||
+      (normalizedEmail === 'demo@ejemplo.com' && normalizedPass === 'demo2024')
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  // Guardar sesión simulada en localStorage si "recordarme" está activado
+  function saveSession(email) {
+    if (rememberCheck.checked) {
+      localStorage.setItem('rememberedUser', email);
+      localStorage.setItem('sessionActive', 'true');
+    } else {
+      // Si no se marca recordarme, pero se hace login igual, podemos almacenar solo en sesión
+      sessionStorage.setItem('tempSession', 'active');
+      localStorage.removeItem('rememberedUser'); // limpiar por si acaso
+    }
+    // Marcar que hay un login exitoso (para efectos de simulación)
+    sessionStorage.setItem('justLoggedIn', 'true');
+  }
+
+  // Cargar credenciales recordadas al cargar la página (opcional)
+  function loadRememberedUser() {
+    const remembered = localStorage.getItem('rememberedUser');
+    if (remembered) {
+      emailInput.value = remembered;
+      rememberCheck.checked = true;
+      // No autocompletamos la contraseña por seguridad, pero el usuario puede escribirla.
+    }
+  }
+
+  // Redirección simulada tras login exitoso (puedes cambiar la URL)
+  function redirectToDashboard() {
+    // Muestra un pequeño feedback visual antes de redirigir (simula navegación)
+    const btn = document.querySelector('.btn-login');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Accediendo...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+      // Aquí puedes redirigir a tu panel principal. Por ejemplo:
+      // window.location.href = "/dashboard";
+      // Para demo: mostramos alerta y reiniciamos (puedes cambiar a redirección real)
+      alert("✅ ¡Inicio de sesión exitoso! (Simulación)\nBienvenido " + emailInput.value.trim() + "\nRedirigiendo al panel principal...");
+      // Ejemplo de redirección (comenta si no deseas usarla)
+      // window.location.href = "https://tu-dominio.com/panel";
+      // Para mantener la demo, recargamos estilo pero sin recargar página (solo limpia)
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+      // Si deseas simular una redirección sin romper la demo, puedes limpiar el formulario
+      // pero mantenemos el mensaje.
+      console.log("Login exitoso para:", emailInput.value);
+      // Opcional: resetear campos después de éxito
+      // loginForm.reset();
+    }, 800);
+  }
+
+  // Evento submit del formulario principal
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const email = emailInput.value;
+    const password = passwordInput.value;
+
+    if (!email || !password) {
+      showError('❌ Por favor completa ambos campos.');
+      return;
+    }
+
+    // Validar formato de email básico (opcional pero ayuda)
+    const emailPattern = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      showError('📧 Ingresa un correo electrónico válido (ej: nombre@dominio.com).');
+      return;
+    }
+
+    if (password.length < 4) {
+      showError('🔒 La contraseña debe tener al menos 4 caracteres.');
+      return;
+    }
+
+    const isValid = validateCredentials(email, password);
+    if (isValid) {
+      // Guardar sesión según recordar
+      saveSession(email);
+      // Redirigir o ejecutar post-login
+      redirectToDashboard();
+    } else {
+      showError('⚠️ Correo o contraseña incorrectos. Prueba: admin@demo.com / password123');
+      passwordInput.value = ''; // Limpiar contraseña por seguridad
+      passwordInput.focus();
+    }
+  });
+
+  // --- SIMULACIÓN DE ACCIONES SOCIALES Y RECUPERACIÓN ---
+
+  // Botón Google (simulación)
+  googleBtn.addEventListener('click', () => {
+    // Podrías integrar OAuth real, pero aquí es demo
+    showError('🌐 Demostración: autenticación con Google (conectar backend real).');
+    console.log("Intentando login con Google...");
+    // Ejemplo: window.location.href = '/auth/google';
+  });
+
+  // Botón GitHub (simulación)
+  githubBtn.addEventListener('click', () => {
+    showError('🐙 Demostración: autenticación con GitHub (conectar backend real).');
+    console.log("Intentando login con GitHub...");
+  });
+
+  // Enlace "¿Olvidaste tu contraseña?"
+  forgotLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    alert("🔐 Función de recuperación de contraseña.\nSimulación: envía un correo a soporte@midominio.com");
+    // Podrías mostrar un modal o redirigir a una página de reset
+  });
+
+  // Enlace "Crear cuenta"
+  signupLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    alert("📝 Registro de nueva cuenta.\n(Conecta con tu sistema de registro)");
+    // window.location.href = "/registro";
+  });
+
+  // Si hay sesión previa recordada, cargarla (autocompletar email)
+  loadRememberedUser();
+
+  // Extra: Si alguien presiona Enter fuera del botón, funciona gracias al submit.
+  // También si existe sesión activa guardada, podríamos mostrar mensaje de bienvenida
+  window.addEventListener('load', () => {
+    const justLogged = sessionStorage.getItem('justLoggedIn');
+    if (justLogged === 'true') {
+      // limpiamos para no mostrar cada recarga
+      sessionStorage.removeItem('justLoggedIn');
+      // Podría indicarse algo, pero sin interferir.
+      console.log("Sesión recién iniciada, bienvenido.");
+    }
+    // Si se quiere recuperar email recordado, ya está hecho.
+  });
+</script>
+</body>
+</html>

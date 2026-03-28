@@ -1,0 +1,14 @@
+{
+    "builds" : [
+        {
+            "src": "SPCFH/wsgi.py",
+            "use": "@vercel/python"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "SPCFH/wsgi.py"
+        }
+    ]
+}
