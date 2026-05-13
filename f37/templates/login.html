@@ -1,261 +1,216 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Iniciar Sesión | Tu Panel</title>
-  <!-- Fuente moderna y limpia desde Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <!-- Font Awesome 6 (gratuito, CDN) para iconos elegantes -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- CSS personalizado -->
-  <link rel="stylesheet" href="static/stylelogin.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'stylelogin.css' %}">
 </head>
 <body>
-
-<div class="login-card">
-  <div class="card-header">
-    <div class="logo-area">
-      <i class="fas fa-laptop-code"></i>
+    {% if not request.session.usuario_id %}
+    <!-- Login -->
+    <div class="login-container">
+        <div class="login-box">
+            <h1>🔐 Iniciar Sesión</h1>
+            {% if error %}
+            <div class="error">{{ error }}</div>
+            {% endif %}
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" name="correo" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña:</label>
+                    <input type="password" name="contrasena" required>
+                </div>
+                <button type="submit">Ingresar</button>
+            </form>
+        </div>
     </div>
-    <h1>Bienvenido</h1>
-    <p>Ingresa a tu cuenta para continuar</p>
-  </div>
-
-  <div class="login-form">
-    <!-- Contenedor de mensaje de error -->
-    <div id="errorBox" class="error-message">
-      <i class="fas fa-exclamation-circle"></i>
-      <span id="errorText">Credenciales inválidas</span>
+    
+    {% else %}
+    <!-- Panel de Control con CRUD -->
+    <div class="panel-container">
+        <div class="header">
+            <h1>📋 Gestión de Usuarios</h1>
+            <div class="user-info">
+                <div class="user-name">Bienvenido, {{ usuario_logueado }}</div>
+                <div class="user-role">
+                    Rol: 
+                    {% if usuario_rol == 'ADMINISTRADOR' %}
+                        <span class="badge badge-admin"> {{ usuario_rol }}</span>
+                    {% elif usuario_rol == 'COORDINADOR' %}
+                        <span class="badge badge-coordinador"> {{ usuario_rol }}</span>
+                    {% elif usuario_rol == 'ENCARGADO' %}
+                        <span class="badge badge-encargado"> {{ usuario_rol }}</span>
+                    {% else %}
+                        <span class="badge">👤 {{ usuario_rol }}</span>
+                    {% endif %}
+                </div>
+                <a href="/logout/" class="btn-logout">🚪 Cerrar Sesión</a>
+            </div>
+        </div>
+        
+        <button class="btn-agregar" onclick="abrirModalCrear()">➕ Agregar Nuevo Usuario</button>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Fecha Registro</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr id="row-{{ usuario.id_usuario }}">
+                    <td class="user-id">{{ usuario.id_usuario }}</td>
+                    <td class="user-nombre">{{ usuario.nombre }}</td>
+                    <td class="user-apellido">{{ usuario.apellido }}</td>
+                    <td class="user-correo">{{ usuario.correo }}</td>
+                    <td class="user-rol-text">
+                        {% if usuario.nombre_rol == 'ADMINISTRADOR' %}
+                            <span class="rol-badge rol-admin"> {{ usuario.nombre_rol }}</span>
+                        {% elif usuario.nombre_rol == 'COORDINADOR' %}
+                            <span class="rol-badge rol-coordinador"> {{ usuario.nombre_rol }}</span>
+                        {% elif usuario.nombre_rol == 'ENCARGADO' %}
+                            <span class="rol-badge rol-encargado"> {{ usuario.nombre_rol }}</span>
+                        {% else %}
+                            <span class="rol-badge rol-sin">❌ {{ usuario.nombre_rol }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ usuario.fecha_registro|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <button class="btn-editar" onclick="editarUsuario(this, {{ usuario.id_usuario }})">✏️ Editar</button>
+                        <button class="btn-eliminar" onclick="eliminarUsuario({{ usuario.id_usuario }}, '{{ usuario.nombre|escapejs }}')">🗑️ Eliminar</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align:center; padding:50px;">No hay usuarios registrados</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-
-    <!-- Formulario nativo con preventDefault -->
-    <form id="loginForm" action="#" method="post">
-      <div class="input-group">
-        <label><i class="fas fa-envelope"></i> Correo electrónico</label>
-        <i class="fas fa-envelope input-icon"></i>
-        <input type="email" id="email" class="input-field" placeholder="usuario@ejemplo.com" required autocomplete="email">
-      </div>
-
-      <div class="input-group">
-        <label><i class="fas fa-lock"></i> Contraseña</label>
-        <i class="fas fa-key input-icon"></i>
-        <input type="password" id="password" class="input-field" placeholder="••••••••" required autocomplete="current-password">
-      </div>
-
-      <div class="options-row">
-        <label class="remember">
-          <input type="checkbox" id="rememberCheck"> Recordarme
-        </label>
-        <a href="#" class="forgot-link" id="forgotPasswordLink">¿Olvidaste tu contraseña?</a>
-      </div>
-
-      <button type="submit" class="btn-login">
-        <i class="fas fa-arrow-right-to-bracket"></i> Iniciar sesión
-      </button>
-    </form>
-
-    <div class="divider">
-      <span>O continúa con</span>
+    
+    <!-- Modal Crear Usuario -->
+    <div id="modalCrear" class="modal">
+        <div class="modal-content">
+            <h2>➕ Crear Usuario</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="crear">
+                <input type="text" name="nombre" placeholder="Nombre" required>
+                <input type="text" name="apellido" placeholder="Apellido" required>
+                <input type="email" name="correo" placeholder="Correo" required>
+                <input type="password" name="contrasena" placeholder="Contraseña" required>
+                <select name="id_rol" required>
+                    <option value="">Seleccione un rol</option>
+                    {% for rol in roles %}
+                    <option value="{{ rol.id_rol }}">{{ rol.nombre_rol }}</option>
+                    {% endfor %}
+                </select>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-guardar">Guardar</button>
+                    <button type="button" class="btn-cancelar" onclick="cerrarModal('modalCrear')">Cancelar</button>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div class="social-buttons">
-      <button class="social-btn google" id="googleLoginBtn">
-        <i class="fab fa-google"></i> Google
-      </button>
-      <button class="social-btn github" id="githubLoginBtn">
-        <i class="fab fa-github"></i> GitHub
-      </button>
+    
+    <!-- Modal Editar Usuario -->
+    <div id="modalEditar" class="modal">
+        <div class="modal-content">
+            <h2>✏️ Editar Usuario</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="editar">
+                <input type="hidden" id="edit_id" name="id">
+                <input type="text" id="edit_nombre" name="nombre" placeholder="Nombre" required>
+                <input type="text" id="edit_apellido" name="apellido" placeholder="Apellido" required>
+                <input type="email" id="edit_correo" name="correo" placeholder="Correo" required>
+                <input type="password" id="edit_contrasena" name="contrasena" placeholder="Contraseña">
+                <select id="edit_id_rol" name="id_rol" required>
+                    <option value="">Seleccione un rol</option>
+                    {% for rol in roles %}
+                    <option value="{{ rol.id_rol }}">{{ rol.nombre_rol }}</option>
+                    {% endfor %}
+                </select>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-guardar">Actualizar</button>
+                    <button type="button" class="btn-cancelar" onclick="cerrarModal('modalEditar')">Cancelar</button>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div class="signup-prompt">
-      ¿No tienes una cuenta?
-      <a href="#" id="signupLink">Crear cuenta</a>
+    
+    <!-- Modal Eliminar Usuario -->
+    <div id="modalEliminar" class="modal">
+        <div class="modal-content">
+            <h2>⚠️ Confirmar Eliminación</h2>
+            <p>¿Estás seguro de eliminar a <strong id="delete_nombre"></strong>?</p>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="eliminar">
+                <input type="hidden" id="delete_id" name="id">
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-guardar" style="background:#f44336;">Sí, Eliminar</button>
+                    <button type="button" class="btn-cancelar" onclick="cerrarModal('modalEliminar')">Cancelar</button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
-</div>
-
-<script>
-  // Elementos del DOM
-  const loginForm = document.getElementById('loginForm');
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  const errorBox = document.getElementById('errorBox');
-  const errorTextSpan = document.getElementById('errorText');
-  const rememberCheck = document.getElementById('rememberCheck');
-  const forgotLink = document.getElementById('forgotPasswordLink');
-  const googleBtn = document.getElementById('googleLoginBtn');
-  const githubBtn = document.getElementById('githubLoginBtn');
-  const signupLink = document.getElementById('signupLink');
-
-  // --- FUNCIÓN PARA MOSTRAR ERRORES ---
-  function showError(message) {
-    errorTextSpan.innerText = message;
-    errorBox.classList.add('show');
-    // Auto-ocultar después de 4 segundos
-    setTimeout(() => {
-      errorBox.classList.remove('show');
-    }, 4000);
-  }
-
-  // Limpiar error cuando el usuario empiece a escribir (mejora UX)
-  function clearErrorOnInput() {
-    emailInput.addEventListener('input', () => errorBox.classList.remove('show'));
-    passwordInput.addEventListener('input', () => errorBox.classList.remove('show'));
-  }
-  clearErrorOnInput();
-
-  // --- SIMULACIÓN DE AUTENTICACIÓN (puedes reemplazar con llamada real a backend) ---
-  // Credenciales válidas de ejemplo: admin@demo.com / password123
-  // También acepta: usuario@prueba.com / 12345678
-  function validateCredentials(email, password) {
-    // Normalizar email (minúsculas para evitar case sensitive en ejemplo)
-    const normalizedEmail = email.trim().toLowerCase();
-    const normalizedPass = password.trim();
-
-    // Conjunto de credenciales demo (solo para probar el login)
-    if (
-      (normalizedEmail === 'admin@demo.com' && normalizedPass === 'password123') ||
-      (normalizedEmail === 'usuario@prueba.com' && normalizedPass === '12345678') ||
-      (normalizedEmail === 'demo@ejemplo.com' && normalizedPass === 'demo2024')
-    ) {
-      return true;
-    }
-    return false;
-  }
-
-  // Guardar sesión simulada en localStorage si "recordarme" está activado
-  function saveSession(email) {
-    if (rememberCheck.checked) {
-      localStorage.setItem('rememberedUser', email);
-      localStorage.setItem('sessionActive', 'true');
-    } else {
-      // Si no se marca recordarme, pero se hace login igual, podemos almacenar solo en sesión
-      sessionStorage.setItem('tempSession', 'active');
-      localStorage.removeItem('rememberedUser'); // limpiar por si acaso
-    }
-    // Marcar que hay un login exitoso (para efectos de simulación)
-    sessionStorage.setItem('justLoggedIn', 'true');
-  }
-
-  // Cargar credenciales recordadas al cargar la página (opcional)
-  function loadRememberedUser() {
-    const remembered = localStorage.getItem('rememberedUser');
-    if (remembered) {
-      emailInput.value = remembered;
-      rememberCheck.checked = true;
-      // No autocompletamos la contraseña por seguridad, pero el usuario puede escribirla.
-    }
-  }
-
-  // Redirección simulada tras login exitoso (puedes cambiar la URL)
-  function redirectToDashboard() {
-    // Muestra un pequeño feedback visual antes de redirigir (simula navegación)
-    const btn = document.querySelector('.btn-login');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Accediendo...';
-    btn.disabled = true;
-
-    setTimeout(() => {
-      // Aquí puedes redirigir a tu panel principal. Por ejemplo:
-      // window.location.href = "/dashboard";
-      // Para demo: mostramos alerta y reiniciamos (puedes cambiar a redirección real)
-      alert("✅ ¡Inicio de sesión exitoso! (Simulación)\nBienvenido " + emailInput.value.trim() + "\nRedirigiendo al panel principal...");
-      // Ejemplo de redirección (comenta si no deseas usarla)
-      // window.location.href = "https://tu-dominio.com/panel";
-      // Para mantener la demo, recargamos estilo pero sin recargar página (solo limpia)
-      btn.innerHTML = originalText;
-      btn.disabled = false;
-      // Si deseas simular una redirección sin romper la demo, puedes limpiar el formulario
-      // pero mantenemos el mensaje.
-      console.log("Login exitoso para:", emailInput.value);
-      // Opcional: resetear campos después de éxito
-      // loginForm.reset();
-    }, 800);
-  }
-
-  // Evento submit del formulario principal
-  loginForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const email = emailInput.value;
-    const password = passwordInput.value;
-
-    if (!email || !password) {
-      showError('❌ Por favor completa ambos campos.');
-      return;
-    }
-
-    // Validar formato de email básico (opcional pero ayuda)
-    const emailPattern = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
-    if (!emailPattern.test(email)) {
-      showError('📧 Ingresa un correo electrónico válido (ej: nombre@dominio.com).');
-      return;
-    }
-
-    if (password.length < 4) {
-      showError('🔒 La contraseña debe tener al menos 4 caracteres.');
-      return;
-    }
-
-    const isValid = validateCredentials(email, password);
-    if (isValid) {
-      // Guardar sesión según recordar
-      saveSession(email);
-      // Redirigir o ejecutar post-login
-      redirectToDashboard();
-    } else {
-      showError('⚠️ Correo o contraseña incorrectos. Prueba: admin@demo.com / password123');
-      passwordInput.value = ''; // Limpiar contraseña por seguridad
-      passwordInput.focus();
-    }
-  });
-
-  // --- SIMULACIÓN DE ACCIONES SOCIALES Y RECUPERACIÓN ---
-
-  // Botón Google (simulación)
-  googleBtn.addEventListener('click', () => {
-    // Podrías integrar OAuth real, pero aquí es demo
-    showError('🌐 Demostración: autenticación con Google (conectar backend real).');
-    console.log("Intentando login con Google...");
-    // Ejemplo: window.location.href = '/auth/google';
-  });
-
-  // Botón GitHub (simulación)
-  githubBtn.addEventListener('click', () => {
-    showError('🐙 Demostración: autenticación con GitHub (conectar backend real).');
-    console.log("Intentando login con GitHub...");
-  });
-
-  // Enlace "¿Olvidaste tu contraseña?"
-  forgotLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    alert("🔐 Función de recuperación de contraseña.\nSimulación: envía un correo a soporte@midominio.com");
-    // Podrías mostrar un modal o redirigir a una página de reset
-  });
-
-  // Enlace "Crear cuenta"
-  signupLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    alert("📝 Registro de nueva cuenta.\n(Conecta con tu sistema de registro)");
-    // window.location.href = "/registro";
-  });
-
-  // Si hay sesión previa recordada, cargarla (autocompletar email)
-  loadRememberedUser();
-
-  // Extra: Si alguien presiona Enter fuera del botón, funciona gracias al submit.
-  // También si existe sesión activa guardada, podríamos mostrar mensaje de bienvenida
-  window.addEventListener('load', () => {
-    const justLogged = sessionStorage.getItem('justLoggedIn');
-    if (justLogged === 'true') {
-      // limpiamos para no mostrar cada recarga
-      sessionStorage.removeItem('justLoggedIn');
-      // Podría indicarse algo, pero sin interferir.
-      console.log("Sesión recién iniciada, bienvenido.");
-    }
-    // Si se quiere recuperar email recordado, ya está hecho.
-  });
-</script>
+    
+    <script>
+        function abrirModalCrear() {
+            document.getElementById('modalCrear').style.display = 'flex';
+        }
+        
+        function editarUsuario(button, id) {
+            var row = button.closest('tr');
+            
+            document.getElementById('edit_id').value = id;
+            document.getElementById('edit_nombre').value = row.querySelector('.user-nombre').innerText;
+            document.getElementById('edit_apellido').value = row.querySelector('.user-apellido').innerText;
+            document.getElementById('edit_correo').value = row.querySelector('.user-correo').innerText;
+            document.getElementById('edit_contrasena').value = '';
+            
+            var rolText = row.querySelector('.user-rol-text').innerText;
+            if (rolText.includes('ADMINISTRADOR')) {
+                document.getElementById('edit_id_rol').value = 1;
+            } else if (rolText.includes('COORDINADOR')) {
+                document.getElementById('edit_id_rol').value = 2;
+            } else if (rolText.includes('ENCARGADO')) {
+                document.getElementById('edit_id_rol').value = 3;
+            }
+            
+            document.getElementById('modalEditar').style.display = 'flex';
+        }
+        
+        function eliminarUsuario(id, nombre) {
+            document.getElementById('delete_id').value = id;
+            document.getElementById('delete_nombre').textContent = nombre;
+            document.getElementById('modalEliminar').style.display = 'flex';
+        }
+        
+        function cerrarModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+    {% endif %}
 </body>
 </html>

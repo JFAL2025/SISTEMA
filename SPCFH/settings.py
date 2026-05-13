@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-+)7rm@bz_ze#_!u^!(%=#13$=wh3u7eppvl08i(6nd=8*5jn2t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.vercel.app','localhost','127.0.0.1']
+ALLOWED_HOSTS = ['.vercel.app','127.0.0.1','localhost',]
 
 
 # Application definition
@@ -78,8 +78,14 @@ WSGI_APPLICATION = 'SPCFH.wsgi.app'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'mssql',
+        'NAME': 'MATRIZ',  # Nota: mayúsculas como en tu cadena
+        'HOST': '(localdb)\\jfal',  # Usando tu instancia jfal
+        'PORT': '',
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',
+            'trusted_connection': 'yes',
+        },
     }
 }
 
@@ -106,10 +112,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+LANGUAGE_CODE = 'es-bo'
+TIME_ZONE = 'America/La_Paz'
 USE_I18N = True
 
 USE_TZ = True
@@ -119,6 +123,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Aquí buscas tus archivos CSS personalizados
+]
 STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

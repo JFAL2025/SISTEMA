@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control | FOSA365</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'stylepanel.css' %}">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2>FOSA365</h2>
+                <p>Sistema de Gestión</p>
+            </div>
+            <div class="nav-item active">
+                <i></i>
+                <span>Inicio</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Seguimiento administrativo</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="page-title">
+                    <h1>Inicio</h1>
+                    <p>Bienvenido al panel de control</p>
+                </div>
+                <div class="user-info">
+                    <span>Administrador FOSA365</span>
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de tipos de mejora -->
+            <div class="buttons-grid">
+                <button class="type-btn nc">
+                    <i class="fas fa-times-circle"></i>
+                    <span>(NC) NO CONFORMIDAD</span>
+                </button>
+                <button class="type-btn accidente">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>ACCIDENTE</span>
+                </button>
+                <button class="type-btn om">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>(OM) OPORTUNIDAD DE MEJORA</span>
+                </button>
+                <button class="type-btn incidente">
+                    <i class="fas fa-book-open"></i>
+                    <span>INCIDENTE/LECCIÓN APRENDIDA</span>
+                </button>
+                <button class="type-btn snc">
+                    <i class="fas fa-ban"></i>
+                    <span>(SNC) SALIDAS NO CONFORMES</span>
+                </button>
+                <button class="type-btn rsf">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>(RSF) RIESGOS DE SEGURIDAD FERROVIARIA</span>
+                </button>
+                <button class="type-btn pc">
+                    <i class="fas fa-chart-line"></i>
+                    <span>(PC) PLAN DE CAMBIOS</span>
+                </button>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Solicitados</div>
+                    <div class="stat-number">4</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Buscar...">
+                </div>
+                <div class="date-range">
+                    <input type="date" value="2026-03-08">
+                    <input type="date" value="2026-04-07">
+                </div>
+            </div>
+
+            <!-- Status Tabs -->
+            <div class="status-tabs">
+                <div class="tab active">Todos</div>
+                <div class="tab">Pendientes</div>
+                <div class="tab">En curso</div>
+                <div class="tab">Concluidos</div>
+                <div class="tab">Rechazados</div>
+            </div>
+
+            <!-- Items Grid -->
+            <div class="items-grid">
+                <!-- PC 13/2026 -->
+                <div class="item-card">
+                    <div class="card-header">
+                        <span class="card-type pc">PC 13/2026</span>
+                        <span class="card-status observado-verificacion">Observado en verificación</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="progress-steps">
+                            <div class="step completed">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Solicitado</span>
+                            </div>
+                            <div class="step completed">
+                                <i class="fas fa-user-check"></i>
+                                <span>Asignado</span>
+                            </div>
+                            <div class="step completed">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Seguimiento</span>
+                            </div>
+                            <div class="step active">
+                                <i class="fas fa-clipboard-check"></i>
+                                <span>Verificación</span>
+                            </div>
+                            <div class="step">
+                                <i class="fas fa-flag-checkered"></i>
+                                <span>Concluido</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <i class="fas fa-user"></i> Nombre: Administrador FOSA365<br>
+                        <i class="fas fa-calendar"></i> Fecha registro: 9 febrero 2026 21:23<br>
+                        <i class="fas fa-source"></i> Origen de la mejora: Auditoria Interna
+                    </div>
+                </div>
+
+                <!-- RSF 86/2026 -->
+                <div class="item-card">
+                    <div class="card-header">
+                        <span class="card-type rsf">RSF 86/2026</span>
+                        <span class="card-status observado-verificacion">Observado en verificación</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="progress-steps">
+                            <div class="step completed">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Solicitado</span>
+                            </div>
+                            <div class="step completed">
+                                <i class="fas fa-user-check"></i>
+                                <span>Asignado</span>
+                            </div>
+                            <div class="step completed">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Seguimiento</span>
+                            </div>
+                            <div class="step active">
+                                <i class="fas fa-clipboard-check"></i>
+                                <span>Verificación</span>
+                            </div>
+                            <div class="step">
+                                <i class="fas fa-flag-checkered"></i>
+                                <span>Concluido</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <i class="fas fa-user"></i> Nombre: Martha Costas Hurtado<br>
+                        <i class="fas fa-calendar"></i> Fecha registro: 13 marzo 2026 14:53<br>
+                        <i class="fas fa-source"></i> Origen de la mejora: RSF Planificación Operativa
+                    </div>
+                </div>
+
+                <!-- RSF 34/2026 -->
+                <div class="item-card">
+                    <div class="card-header">
+                        <span class="card-type rsf">RSF 34/2026</span>
+                        <span class="card-status observado-seguimiento">Observado en seguimiento</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="progress-steps">
+                            <div class="step completed">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Solicitado</span>
+                            </div>
+                            <div class="step completed">
+                                <i class="fas fa-user-check"></i>
+                                <span>Asignado</span>
+                            </div>
+                            <div class="step active">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Seguimiento</span>
+                            </div>
+                            <div class="step">
+                                <i class="fas fa-clipboard-check"></i>
+                                <span>Verificación</span>
+                            </div>
+                            <div class="step">
+                                <i class="fas fa-flag-checkered"></i>
+                                <span>Concluido</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <i class="fas fa-user"></i> Nombre: Bley Ramos Cardozo<br>
+                        <i class="fas fa-calendar"></i> Fecha registro: 9 marzo 2026 16:15<br>
+                        <i class="fas fa-source"></i> Origen de la mejora: RSF Mtto Locomotoras y Vagones
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funcionalidad de botones de tipos
+        const typeBtns = document.querySelectorAll('.type-btn');
+        typeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                typeBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const tipo = this.innerText;
+                console.log('Filtrar por:', tipo);
+            });
+        });
+
+        // Funcionalidad de tabs
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Funcionalidad de búsqueda
+        const searchInput = document.querySelector('.search-box input');
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const cards = document.querySelectorAll('.item-card');
+                
+                cards.forEach(card => {
+                    const text = card.innerText.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Funcionalidad de fechas
+        const dateInputs = document.querySelectorAll('.date-range input');
+        dateInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                console.log('Filtrar por fechas:', dateInputs[0].value, 'a', dateInputs[1].value);
+            });
+        });
+    </script>
+</body>
+</html>
