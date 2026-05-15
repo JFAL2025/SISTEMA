@@ -29,6 +29,13 @@
             </div>
         </div>
         
+        <!-- 🔹 BOTÓN VOLVER AL PANEL PRINCIPAL (con estilo consistente) 🔹 -->
+        <div style="margin: 20px;">
+            <a href="/panel/" class="btn-agregar" style="background: linear-gradient(135deg, #fa4020, ); border: 1px solid #FF8C00; display: inline-block; text-decoration: none; margin: 0;">
+                ← Volver al Panel Principal
+            </a>
+        </div>
+        
         <button class="btn-agregar" onclick="abrirModalCrear()">➕ Agregar Nuevo Usuario</button>
         
         <table>
@@ -137,7 +144,7 @@
                 <input type="hidden" name="action" value="eliminar">
                 <input type="hidden" id="delete_id" name="id">
                 <div class="modal-buttons">
-                    <button type="submit" class="btn-guardar" style="background:#f44336;">Sí, Eliminar</button>
+                    <button type="submit" class="btn-guardar" style="background:#dc3545; color:white;">Sí, Eliminar</button>
                     <button type="button" class="btn-cancelar" onclick="cerrarModal('modalEliminar')">Cancelar</button>
                 </div>
             </form>
