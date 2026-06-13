@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Lecciones Aprendidas</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'stylelogin.css' %}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0D0D0D; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif; }
+        .lecciones-container { max-width: 1400px; margin: 0 auto; background: #0D0D0D; border-radius: 15px; overflow: hidden; border: 1px solid #FF8C00; }
+        .page-header { background: #FF8C00; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .page-header h1 { color: #0D0D0D; font-size: 24px; margin: 0; }
+        .btn-volver { background: #0D0D0D; color: #FF8C00; padding: 6px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 13px; }
+        
+        /* Contenedor para alinear los botones de acción del encabezado */
+        .header-actions { display: flex; gap: 10px; margin: 15px 20px; }
+        .btn-add { background: #FF8C00; color: #0D0D0D; padding: 8px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.3s; }
+        .btn-add:hover { background: #e67e00; transform: translateY(-1px); }
+        .btn-report { background: #28a745; color: white; padding: 8px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.3s; }
+        .btn-report:hover { background: #218838; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(40,167,69,0.2); }
+
+        .table-container { margin: 0 20px 20px 20px; background: #1A1A1A; border-radius: 15px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #333; color: white; font-size: 12px; }
+        th { background: #252525; color: #FF8C00; }
+        
+        /* Efecto de fila clickeable para el detalle B.3 */
+        tbody tr { cursor: pointer; transition: background 0.2s; }
+        tbody tr:hover { background: rgba(255, 140, 0, 0.05); }
+        
+        th:nth-child(1), td:nth-child(1) { width: 50px; text-align: center; }
+        th:nth-child(2), td:nth-child(2) { width: 90px; }
+        th:nth-child(3), td:nth-child(3) { width: auto; }
+        th:nth-child(4), td:nth-child(4) { width: 95px; }
+        th:nth-child(5), td:nth-child(5) { width: 180px; }
+        th:nth-child(6), td:nth-child(6) { width: 100px; text-align: center; }
+        th:nth-child(7), td:nth-child(7) { width: 90px; text-align: center; }
+        
+        td:last-child { text-align: center; vertical-align: middle; }
+        .acciones-btns { display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center; }
+        .btn-edit, .btn-delete { 
+            padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;
+            display: block; width: 70px; text-align: center; font-weight: bold; transition: all 0.3s;
+        }
+        .btn-edit { background: #FF8C00; color: #0D0D0D; }
+        .btn-edit:hover { background: #e67e00; transform: translateY(-1px); }
+        .btn-delete { background: #dc3545; color: white; }
+        .btn-delete:hover { background: #c82333; transform: translateY(-1px); }
+        
+        .badge-asignado { background: #0066CC; color: white; padding: 4px 8px; border-radius: 20px; font-size: 11px; display: inline-block; max-width: 160px; }
+        .eficacia-alta, .eficacia-media, .eficacia-baja { padding: 4px 8px; font-size: 11px; display: inline-block; border-radius: 20px; }
+        .eficacia-alta { background: #28a745; color: white; }
+        .eficacia-media { background: #ffc107; color: black; }
+        .eficacia-baja { background: #dc3545; color: white; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #1A1A1A; width: 90%; max-width: 800px; max-height: 85vh; overflow-y: auto; border-radius: 15px; border: 1px solid #FF8C00; }
+        .modal-header { padding: 20px 25px; border-bottom: 1px solid #FF8C00; display: flex; justify-content: space-between; align-items: center; background: #0D0D0D; position: sticky; top: 0; border-radius: 15px 15px 0 0; }
+        .modal-header h2 { color: #FF8C00; font-size: 20px; margin: 0; }
+        .close-modal { background: none; border: none; font-size: 28px; cursor: pointer; color: #FF8C00; transition: all 0.3s; }
+        .close-modal:hover { color: #e67e00; transform: scale(1.1); }
+        .modal-body { padding: 25px; background: #1A1A1A; }
+        .section-heading { font-size: 18px; font-weight: 600; color: #FF8C00; margin: 0 0 15px 0; border-left: 3px solid #FF8C00; padding-left: 10px; }
+        .field-label { font-size: 14px; font-weight: 600; color: #FF8C00; margin: 15px 0 5px 0; }
+        .simple-input, .simple-textarea, .simple-select { 
+            width: 100%; padding: 12px; border: 1px solid #333; border-radius: 8px; 
+            font-size: 14px; background: #0D0D0D; outline: none; color: white; transition: all 0.3s;
+        }
+        .simple-input:focus, .simple-textarea:focus, .simple-select:focus { border-color: #FF8C00; box-shadow: 0 0 5px rgba(255, 140, 0, 0.5); }
+        .simple-textarea { resize: vertical; min-height: 60px; }
+        .simple-select { cursor: pointer; }
+        .simple-select option { background: #1A1A1A; color: white; }
+        .separator { border: none; border-top: 1px solid #333; margin: 20px 0; }
+        .modal-footer { padding: 20px 25px; border-top: 1px solid #333; display: flex; justify-content: flex-end; gap: 10px; background: #1A1A1A; position: sticky; bottom: 0; border-radius: 0 0 15px 15px; }
+        .btn-save, .btn-cancel { padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; border: none; font-weight: bold; transition: all 0.3s; }
+        .btn-save { background: #FF8C00; color: #0D0D0D; }
+        .btn-save:hover { background: #e67e00; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 140, 0, 0.3); }
+        .btn-cancel { background: #333; color: #FF8C00; border: 1px solid #FF8C00; }
+        .btn-cancel:hover { background: #444; transform: translateY(-2px); }
+        .loading { text-align: center; padding: 40px; color: #888; }
+    </style>
+</head>
+<body>
+    {% csrf_token %}
+
+    <div class="lecciones-container">
+        <div class="page-header">
+            <h1>📚 Gestión de Lecciones Aprendidas</h1>
+            <a href="/panel/" class="btn-volver">← Volver al Panel</a>
+        </div>
+
+        <div class="header-actions">
+            <button class="btn-add" onclick="openModal()">➕ Nueva Lección Aprendida</button>
+            <button class="btn-report" onclick="descargarReporteAutomatorio()">📊 Generar Reporte Automático</button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th>Fecha</th>
+                        <th>Asignado a</th>
+                        <th>Nivel Eficacia</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="leccionesTableBody">
+                    <tr><td colspan="7" class="loading">Cargando datos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="leccionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">📚 Nueva Lección Aprendida</h2>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="leccionForm" onsubmit="event.preventDefault();">
+                    <input type="hidden" id="leccionId">
+
+                    <div class="section-heading">📚 Lección Aprendida</div>
+                    
+                    <div class="field-label">Tipo *</div>
+                    <select id="tipo" class="simple-select">
+                        <option value="">Seleccionar tipo</option>
+                        <option value="INCIDENTE">⚠️ INCIDENTE</option>
+                        <option value="ACCIDENTE">🚨 ACCIDENTE</option>
+                    </select>
+
+                    <div class="field-label">Fecha de identificación</div>
+                    <input type="date" id="fecha_identificacion" class="simple-input">
+
+                    <div class="field-label">Descripción *</div>
+                    <textarea id="descripcion" class="simple-textarea" rows="3" placeholder="Describa la lección aprendida..."></textarea>
+
+                    <hr class="separator">
+
+                    <div class="section-heading">📊 Análisis</div>
+
+                    <div class="field-label">Impacto / Situación</div>
+                    <textarea id="impacto_situacion" class="simple-textarea" rows="2" placeholder="Describa el impacto o situación que generó esta lección..."></textarea>
+
+                    <div class="field-label">Recomendación</div>
+                    <textarea id="recomendacion" class="simple-textarea" rows="2" placeholder="Recomendaciones basadas en la lección..."></textarea>
+
+                    <div class="field-label">Acción a tomar</div>
+                    <textarea id="accion_tomar" class="simple-textarea" rows="2" placeholder="Acciones concretas a implementar..."></textarea>
+
+                    <div class="field-label">Justificación</div>
+                    <textarea id="justificacion" class="simple-textarea" rows="2" placeholder="Justificación de la acción propuesta..."></textarea>
+
+                    <div class="field-label">Asignado a</div>
+                    <select id="asignado_a" class="simple-select">
+                        <option value="">Seleccionar responsable</option>
+                        {% for usuario in usuarios %}
+                        <option value="{{ usuario.id_usuario }}">{{ usuario.nombre }} {{ usuario.apellido }} ({{ usuario.id_rol.nombre_rol }})</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn-save" id="btnGuardarModal" onclick="saveLeccion()">Guardar Lección</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let lecciones = [];
+        const urlBase = window.location.origin;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // B.5: Función para disparar la descarga del archivo CSV
+        function descargarReporteAutomatorio() {
+            window.location.href = `${urlBase}/api/lecciones/exportar-csv/`;
+        }
+
+        async function cargarLecciones() {
+            try {
+                const response = await fetch(`${urlBase}/api/lecciones/listar/`);
+                if (!response.ok) throw new Error('Error al listar');
+                lecciones = await response.json();
+                renderTable();
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('leccionesTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center; color:#dc3545; padding:20px;">❌ Error al conectar con el servidor</td></tr>';
+            }
+        }
+
+        function getEficaciaBadge(nivel) {
+            const n = (nivel || '').toUpperCase();
+            if (n === 'ALTA') return '<span class="eficacia-alta">🟢 ALTA</span>';
+            if (n === 'MEDIA') return '<span class="eficacia-media">🟡 MEDIA</span>';
+            if (n === 'BAJA') return '<span class="eficacia-baja">🔴 BAJA</span>';
+            return '<span class="badge-asignado" style="background:#555;">⏳ Pendiente</span>';
+        }
+
+        function getAsignadoNombre(asignadoId, assignedNombre) {
+            if (assignedNombre) return `<span class="badge-asignado">👤 ${escapeHtml(assignedNombre)}</span>`;
+            if (asignadoId) return `<span class="badge-asignado">👤 ID: ${asignadoId}</span>`;
+            return '<span class="badge-asignado" style="background:#444;">📌 Sin asignar</span>';
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('leccionesTableBody');
+            if (!lecciones.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#888; padding:20px;">📭 No hay lecciones registradas</td></tr>';
+                return;
+            }
+            let html = '';
+            for (let i = 0; i < lecciones.length; i++) {
+                const l = lecciones[i];
+                html += `<tr onclick="verDetalleLeccion(${l.id_leccion_aprendida}, event)">`;
+                html += `<td><strong>#${l.id_leccion_aprendida}</strong></td>`;
+                html += `<td><span style="color:#FF8C00; font-weight:bold;">${escapeHtml(l.tipo || '')}</span></td>`;
+                html += `<td>${escapeHtml((l.descripcion || '').substring(0, 60))}${l.descripcion && l.descripcion.length > 60 ? '...' : ''}</td>`;
+                html += `<td>${l.fecha_identificacion || 'No registrada'}</td>`;
+                html += `<td>${getAsignadoNombre(l.asignado_a_id, l.assigned_nombre)}</td>`;
+                html += `<td>${getEficaciaBadge(l.nivel_eficacia)}</td>`;
+                html += `<td>
+                            <div class="acciones-btns">
+                                <button class="btn-edit" onclick="editLeccion(${l.id_leccion_aprendida}, event)">✏️ Editar</button>
+                                <button class="btn-delete" onclick="deleteLeccion(${l.id_leccion_aprendida}, event)">🗑️ Eliminar</button>
+                            </div>
+                         </td>`;
+                html += '</tr>';
+            }
+            tbody.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function openModal() {
+            document.getElementById('leccionForm').reset();
+            document.getElementById('leccionId').value = '';
+            document.getElementById('fecha_identificacion').value = new Date().toISOString().split('T')[0];
+            
+            setFormReadOnly(false);
+            document.getElementById('btnGuardarModal').style.display = 'inline-block';
+            
+            document.getElementById('modalTitle').textContent = '📚 Nueva Lección Aprendida';
+            document.getElementById('leccionModal').style.display = 'flex';
+        }
+
+        function verDetalleLeccion(id, event) {
+            if (event.target.tagName === 'BUTTON') return; 
+            const leccion = lecciones.find(l => l.id_leccion_aprendida === id);
+            if (!leccion) return;
+
+            editLeccion(id, event);
+            document.getElementById('modalTitle').textContent = `🔍 B.3 Detalle de la Lección #${id}`;
+            setFormReadOnly(true);
+            document.getElementById('btnGuardarModal').style.display = 'none';
+        }
+
+        function setFormReadOnly(status) {
+            const fields = ['tipo', 'fecha_identificacion', 'descripcion', 'impacto_situacion', 'recomendacion', 'accion_tomar', 'justificacion', 'asignado_a'];
+            fields.forEach(f => document.getElementById(f).disabled = status);
+        }
+
+        function editLeccion(id, event) {
+            if(event) event.stopPropagation();
+            const leccion = lecciones.find(l => l.id_leccion_aprendida === id);
+            if (!leccion) return;
+            
+            openModal();
+            
+            document.getElementById('leccionId').value = leccion.id_leccion_aprendida;
+            document.getElementById('tipo').value = leccion.tipo || '';
+            document.getElementById('fecha_identificacion').value = leccion.fecha_identificacion || '';
+            document.getElementById('descripcion').value = leccion.descripcion || '';
+            document.getElementById('impacto_situacion').value = leccion.impacto_situacion || '';
+            document.getElementById('recomendacion').value = leccion.recomendacion || '';
+            document.getElementById('accion_tomar').value = leccion.accion_tomar || '';
+            document.getElementById('justificacion').value = leccion.justificacion || '';
+            document.getElementById('asignado_a').value = leccion.asignado_a_id || '';
+            
+            document.getElementById('modalTitle').textContent = '✏️ Editar Lección Aprendida';
+        }
+
+        async function saveLeccion() {
+            const leccionId = document.getElementById('leccionId').value;
+            
+            const data = {
+                tipo: document.getElementById('tipo').value,
+                fecha_identificacion: document.getElementById('fecha_identificacion').value,
+                descripcion: document.getElementById('descripcion').value.trim(),
+                impacto_situacion: document.getElementById('impacto_situacion').value.trim(),
+                recomendacion: document.getElementById('recomendacion').value.trim(),
+                accion_tomar: document.getElementById('accion_tomar').value.trim(),
+                justificacion: document.getElementById('justificacion').value.trim(),
+                asignado_a: document.getElementById('asignado_a').value || null
+            };
+
+            if (!data.tipo || !data.descripcion) {
+                alert('❌ Los campos Tipo y Descripción son obligatorios.');
+                return;
+            }
+
+            const url = leccionId ? `${urlBase}/api/lecciones/actualizar/${leccionId}/` : `${urlBase}/api/lecciones/crear/`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Error al procesar');
+                
+                closeModal();
+                cargarLecciones();
+                alert(leccionId ? '✅ Lección actualizada con éxito' : '✅ Lección creada con éxito');
+            } catch (error) {
+                alert('❌ Error al guardar: ' + error.message);
+            }
+        }
+
+        async function deleteLeccion(id, event) {
+            event.stopPropagation();
+            if (!confirm('¿Está seguro de que desea eliminar permanentemente esta lección aprendida de la bitácora?')) return;
+            try {
+                const response = await fetch(`${urlBase}/api/lecciones/eliminar/${id}/`, { 
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken }
+                });
+                if (!response.ok) throw new Error('Error al eliminar el registro');
+                cargarLecciones();
+                alert('✅ Lección eliminada correctamente.');
+            } catch (error) {
+                alert('❌ Error al eliminar: ' + error.message);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('leccionModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target === document.getElementById('leccionModal')) closeModal();
+        }
+
+        cargarLecciones();
+    </script>
+</body>
+</html>

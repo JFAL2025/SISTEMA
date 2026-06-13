@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitácora de Auditoría - Sistema de Gestión</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'stylelogin.css' %}">
+    <style>
+        body { background: #0D0D0D; padding: 30px; font-family: 'Segoe UI', sans-serif; color: white; }
+        .container { max-width: 1200px; margin: 0 auto; background: #1A1A1A; padding: 30px; border-radius: 15px; border: 1px solid #FF8C00; }
+        .header-tabla { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px; }
+        .header-tabla h2 { color: #FF8C00; margin: 0; }
+        .btn-back { background: #333; color: #FF8C00; padding: 10px 20px; border: 1px solid #FF8C00; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; transition: 0.3s; }
+        .btn-back:hover { background: #444; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #333; font-size: 14px; }
+        th { color: #FF8C00; background: #252525; font-weight: bold; }
+        
+        .badge-accion { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; }
+        .badge-accion.crear { background: #28a745; }
+        .badge-accion.editar { background: #ffc107; color: black; }
+        .badge-accion.eliminar { background: #dc3545; }
+        
+        .loading { text-align: center; padding: 40px; color: #888; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-tabla">
+            <h2>🕵️‍♂️ B.4 Bitácora de Auditoría del Sistema</h2>
+            <a href="/panel/" class="btn-back">← Volver al Panel</a>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Log</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Módulo</th>
+                    <th>Detalle del Movimiento</th>
+                    <th>Fecha y Hora</th>
+                </tr>
+            </thead>
+            <tbody id="auditoriaTableBody">
+                <tr><td colspan="6" class="loading">Cargando historial de eventos...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function cargarAuditoria() {
+            try {
+                const urlBase = window.location.origin;
+                const response = await fetch(`${urlBase}/api/auditoria/listar/`);
+                if (!response.ok) throw new Error('Error al consultar logs');
+                
+                const logs = await response.json();
+                const tbody = document.getElementById('auditoriaTableBody');
+                
+                if (!logs.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">No hay registros de auditoría en la base de datos</td></tr>';
+                    return;
+                }
+                
+                let html = '';
+                logs.forEach(log => {
+                    const accionClase = log.accion.toLowerCase();
+                    html += `<tr>
+                        <td><strong>#${log.id_auditoria}</strong></td>
+                        <td>👤 ${log.usuario}</td>
+                        <td><span class="badge-accion ${accionClase}">${log.accion}</span></td>
+                        <td>${log.modulo}</td>
+                        <td>${log.detalle}</td>
+                        <td style="color: #FF8C00;">${log.fecha_accion}</td>
+                    </tr>`;
+                });
+                
+                tbody.innerHTML = html;
+            } catch (error) {
+                console.error('Error al cargar auditoría:', error);
+                document.getElementById('auditoriaTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center; color:#dc3545;">❌ Error al conectar con la bitácora</td></tr>';
+            }
+        }
+
+        // Ejecutar carga inicial
+        cargarAuditoria();
+    </script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Riesgos de Seguridad</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'stylelogin.css' %}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0D0D0D; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif; }
+        .riesgos-container { max-width: 1400px; margin: 0 auto; background: #0D0D0D; border-radius: 15px; overflow: hidden; border: 1px solid #FFD700; }
+        .page-header { background: linear-gradient(135deg, #FF8C00, #FFD700); padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .page-header h1 { color: #0D0D0D; font-size: 24px; margin: 0; }
+        .btn-volver { background: #0D0D0D; color: #FFD700; padding: 8px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+        .btn-add { background: linear-gradient(135deg, #FF8C00, #FFD700); color: #0D0D0D; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 20px; }
+        .table-container { margin: 0 20px 20px 20px; background: #1A1A1A; border-radius: 15px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #333; color: white; }
+        th { background: #252525; color: #FFD700; }
+        .risk-critical { background: #dc3545; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; display: inline-block; }
+        .risk-high { background: #fd7e14; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; display: inline-block; }
+        .risk-medium { background: #ffc107; color: black; padding: 4px 10px; border-radius: 20px; font-size: 11px; display: inline-block; }
+        .risk-low { background: #28a745; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; display: inline-block; }
+        .btn-edit, .btn-delete { padding: 5px 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        .btn-edit { background: #FF8C00; color: #0D0D0D; }
+        .btn-delete { background: #dc3545; color: white; }
+        
+        /* MODAL - ESTILO NARANJA/NEGRO */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #1A1A1A; width: 90%; max-width: 700px; max-height: 85vh; overflow-y: auto; border-radius: 15px; border: 1px solid #FF8C00; }
+        .modal-header { padding: 20px 25px; border-bottom: 1px solid #FF8C00; display: flex; justify-content: space-between; align-items: center; background: #0D0D0D; position: sticky; top: 0; border-radius: 15px 15px 0 0; }
+        .modal-header h2 { color: #FFD700; font-size: 20px; margin: 0; }
+        .close-modal { background: none; border: none; font-size: 28px; cursor: pointer; color: #FF8C00; transition: all 0.3s; }
+        .close-modal:hover { color: #FFD700; transform: scale(1.1); }
+        .modal-body { padding: 25px; background: #1A1A1A; }
+        .section-heading { font-size: 18px; font-weight: 600; color: #FFD700; margin: 0 0 15px 0; border-left: 3px solid #FF8C00; padding-left: 10px; }
+        .field-label { font-size: 14px; font-weight: 600; color: #FF8C00; margin: 15px 0 5px 0; }
+        .simple-input, .simple-textarea, .date-input, .simple-select { 
+            width: 100%; padding: 12px; border: 1px solid #333; border-radius: 8px; 
+            font-size: 14px; background: #0D0D0D; outline: none; color: white; 
+            transition: all 0.3s;
+        }
+        .simple-input:focus, .simple-textarea:focus, .simple-select:focus { 
+            border-color: #FF8C00; box-shadow: 0 0 5px rgba(255, 140, 0, 0.5); 
+        }
+        .simple-textarea { resize: vertical; min-height: 60px; }
+        .simple-select { cursor: pointer; }
+        .simple-select option { background: #1A1A1A; color: white; }
+        .separator { border: none; border-top: 1px solid #333; margin: 20px 0; }
+        .attachment-message { color: #888; font-size: 13px; margin-bottom: 10px; }
+        .btn-attach { background: none; border: none; color: #FF8C00; cursor: pointer; font-size: 13px; padding: 0; }
+        .observations-header { display: flex; align-items: center; gap: 10px; margin: 15px 0 10px 0; }
+        .observations-count { font-size: 13px; color: #FFD700; }
+        .add-observation { color: #FF8C00; cursor: pointer; font-size: 13px; background: none; border: 1px solid #FF8C00; padding: 5px 12px; border-radius: 5px; transition: all 0.3s; }
+        .add-observation:hover { background: #FF8C00; color: #0D0D0D; }
+        .observation-item { background: #0D0D0D; padding: 10px; margin: 8px 0; border-radius: 8px; font-size: 13px; border-left: 3px solid #FF8C00; }
+        .observation-author { font-weight: 600; color: #FFD700; font-size: 11px; margin-bottom: 5px; }
+        .modal-footer { padding: 20px 25px; border-top: 1px solid #333; display: flex; justify-content: flex-end; gap: 10px; background: #1A1A1A; position: sticky; bottom: 0; border-radius: 0 0 15px 15px; }
+        .btn-save, .btn-cancel { padding: 10px 24px; border-radius: 8px; cursor: pointer; font-size: 14px; border: none; font-weight: bold; transition: all 0.3s; }
+        .btn-save { background: linear-gradient(135deg, #FF8C00, #FFD700); color: #0D0D0D; }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 140, 0, 0.3); }
+        .btn-cancel { background: #333; color: #FFD700; border: 1px solid #FF8C00; }
+        .btn-cancel:hover { background: #444; transform: translateY(-2px); }
+        .loading { text-align: center; padding: 40px; color: #888; }
+        
+        /* Placeholder color */
+        ::-webkit-input-placeholder { color: #666; }
+        :-moz-placeholder { color: #666; }
+        ::-moz-placeholder { color: #666; }
+        :-ms-input-placeholder { color: #666; }
+    </style>
+</head>
+<body>
+    <div class="riesgos-container">
+        <div class="page-header">
+            <h1>⚠️ Gestión de Riesgos de Seguridad</h1>
+            <a href="/panel/" class="btn-volver">← Volver al Panel</a>
+        </div>
+
+        <button class="btn-add" onclick="openModal()">➕ Nuevo Riesgo de Seguridad</button>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Actividad</th><th>Origen</th><th>Macroproceso</th><th>Área</th><th>Responsable</th><th>Nivel</th><th>Acciones</th></tr>
+                </thead>
+                <tbody id="riesgosTableBody">
+                    <tr><td colspan="8" class="loading">Cargando datos...</td&gt;</tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div id="riskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">⚠️ Nuevo Riesgo de Seguridad</h2>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="riskForm">
+                    <input type="hidden" id="riskId">
+
+                    <div class="section-heading">📋 Información del Riesgo</div>
+                    
+                    <div class="field-label">## Nombre / Actividad *</div>
+                    <input type="text" id="actividad" class="simple-input" placeholder="Ej: Trabajo en alturas, Manejo de sustancias peligrosas...">
+
+                    <div class="field-label">## Origen de la mejora</div>
+                    <textarea id="origen_mejora" class="simple-textarea" rows="2" placeholder="¿De dónde surge este riesgo?"></textarea>
+
+                    <div class="field-label">## Macroproceso *</div>
+                    <input type="text" id="macroproceso" class="simple-input" placeholder="Ej: Operaciones, Mantenimiento, Administración...">
+
+                    <div class="field-label">## Área *</div>
+                    <input type="text" id="area" class="simple-input" placeholder="Ej: Planta, Oficinas, Almacén...">
+
+                    <div class="field-label">## Responsable seguimiento *</div>
+                    <input type="text" id="responsable_seguimiento" class="simple-input" placeholder="Nombre del responsable">
+
+                    <div class="field-label">## Nivel de Riesgo</div>
+                    <select id="nivel_riesgo" class="simple-select">
+                        <option value="">Seleccionar nivel</option>
+                        <option value="CRITICO">🔴 Crítico</option>
+                        <option value="ALTO">🟠 Alto</option>
+                        <option value="MEDIO">🟡 Medio</option>
+                        <option value="BAJO">🟢 Bajo</option>
+                    </select>
+
+                    <div class="field-label">## Dependencia</div>
+                    <input type="text" id="dependencia" class="simple-input" placeholder="Área o departamento relacionado">
+
+                    <div class="field-label">## Recomendación</div>
+                    <textarea id="recomendacion" class="simple-textarea" rows="2" placeholder="Recomendaciones para mitigar el riesgo..."></textarea>
+
+                    <hr class="separator">
+
+                    <div class="field-label">## Observaciones</div>
+                    <div class="observations-header">
+                        <span class="observations-count" id="observationsCount">0 observaciones</span>
+                        <button type="button" class="add-observation" onclick="addObservation()">+ Agregar observación</button>
+                    </div>
+                    <div id="observationsList">
+                        <div style="color: #666; font-size: 13px; padding: 10px 0;">No hay observaciones registradas</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn-save" onclick="saveRisk()">Guardar Riesgo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let riesgos = [];
+        let observaciones = [];
+
+        async function cargarRiesgos() {
+            try {
+                const response = await fetch('/api/riesgos/listar/');
+                if (!response.ok) throw new Error('Error');
+                riesgos = await response.json();
+                renderTable();
+            } catch (error) {
+                document.getElementById('riesgosTableBody').innerHTML = '<tr><td colspan="8">❌ Error al cargar</td&gt;</tr>';
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('riesgosTableBody');
+            if (!riesgos.length) {
+                tbody.innerHTML = '<tr><td colspan="8">📭 No hay riesgos registrados</td&gt;</tr>';
+                return;
+            }
+            tbody.innerHTML = riesgos.map(r => `
+                <tr>
+                    <td>${r.id_rsf}</td>
+                    <td><strong>${escapeHtml(r.actividad || '')}</strong></td>
+                    <td>${escapeHtml((r.origen_mejora || '').substring(0, 40))}</td>
+                    <td>${escapeHtml(r.macroproceso || '')}</td>
+                    <td>${escapeHtml(r.area || '')}</td>
+                    <td>${escapeHtml(r.responsable_seguimiento || '')}</td>
+                    <td>${getBadge(r.nivel_riesgo)}</td>
+                    <td>
+                        <button class="btn-edit" onclick="editRisk(${r.id_rsf})">✏️ Editar</button>
+                        <button class="btn-delete" onclick="deleteRisk(${r.id_rsf})">🗑️ Eliminar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getBadge(nivel) {
+            if (nivel === 'CRITICO') return '<span class="risk-critical">🔴 CRÍTICO</span>';
+            if (nivel === 'ALTO') return '<span class="risk-high">🟠 ALTO</span>';
+            if (nivel === 'MEDIO') return '<span class="risk-medium">🟡 MEDIO</span>';
+            if (nivel === 'BAJO') return '<span class="risk-low">🟢 BAJO</span>';
+            return nivel || '';
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function openModal() {
+            document.getElementById('riskForm').reset();
+            document.getElementById('riskId').value = '';
+            observaciones = [];
+            renderObservations();
+            document.getElementById('modalTitle').textContent = '⚠️ Nuevo Riesgo de Seguridad';
+            document.getElementById('riskModal').style.display = 'flex';
+        }
+
+        function editRisk(id) {
+            const riesgo = riesgos.find(r => r.id_rsf === id);
+            if (!riesgo) return;
+            document.getElementById('riskId').value = riesgo.id_rsf;
+            document.getElementById('actividad').value = riesgo.actividad || '';
+            document.getElementById('origen_mejora').value = riesgo.origen_mejora || '';
+            document.getElementById('macroproceso').value = riesgo.macroproceso || '';
+            document.getElementById('area').value = riesgo.area || '';
+            document.getElementById('responsable_seguimiento').value = riesgo.responsable_seguimiento || '';
+            document.getElementById('nivel_riesgo').value = riesgo.nivel_riesgo || '';
+            document.getElementById('dependencia').value = riesgo.dependencia || '';
+            document.getElementById('recomendacion').value = riesgo.recomendacion || '';
+            
+            if (riesgo.observaciones) {
+                try {
+                    observaciones = JSON.parse(riesgo.observaciones);
+                } catch(e) { observaciones = []; }
+            } else {
+                observaciones = [];
+            }
+            renderObservations();
+            document.getElementById('modalTitle').textContent = '✏️ Editar Riesgo de Seguridad';
+            document.getElementById('riskModal').style.display = 'flex';
+        }
+
+        function addObservation() {
+            let texto = prompt('Escriba su observación:');
+            if (texto && texto.trim()) {
+                observaciones.push({
+                    id: Date.now(),
+                    texto: texto.trim(),
+                    fecha: new Date().toLocaleDateString(),
+                    autor: '{{ usuario_logueado|default:"Usuario" }}'
+                });
+                renderObservations();
+            }
+        }
+
+        function renderObservations() {
+            const container = document.getElementById('observationsList');
+            const count = document.getElementById('observationsCount');
+            if (observaciones.length === 0) {
+                container.innerHTML = '<div style="color: #666; font-size: 13px; padding: 10px 0;">No hay observaciones registradas</div>';
+                count.textContent = '0 observaciones';
+                return;
+            }
+            count.textContent = observaciones.length + (observaciones.length === 1 ? ' observación' : ' observaciones');
+            container.innerHTML = observaciones.map(obs => `
+                <div class="observation-item">
+                    <div class="observation-author">👤 ${escapeHtml(obs.autor)} - 📅 ${obs.fecha}</div>
+                    <div>📝 ${escapeHtml(obs.texto)}</div>
+                </div>
+            `).join('');
+        }
+
+        async function saveRisk() {
+            const data = {
+                actividad: document.getElementById('actividad').value.trim(),
+                origen_mejora: document.getElementById('origen_mejora').value.trim(),
+                macroproceso: document.getElementById('macroproceso').value.trim(),
+                area: document.getElementById('area').value.trim(),
+                responsable_seguimiento: document.getElementById('responsable_seguimiento').value.trim(),
+                nivel_riesgo: document.getElementById('nivel_riesgo').value,
+                dependencia: document.getElementById('dependencia').value.trim(),
+                recomendacion: document.getElementById('recomendacion').value.trim(),
+                observaciones: JSON.stringify(observaciones)
+            };
+
+            if (!data.actividad) {
+                alert('El campo Actividad es obligatorio');
+                return;
+            }
+            if (!data.macroproceso) {
+                alert('El campo Macroproceso es obligatorio');
+                return;
+            }
+            if (!data.area) {
+                alert('El campo Área es obligatorio');
+                return;
+            }
+            if (!data.responsable_seguimiento) {
+                alert('El campo Responsable seguimiento es obligatorio');
+                return;
+            }
+
+            const riskId = document.getElementById('riskId').value;
+            const url = riskId ? `/api/riesgos/actualizar/${riskId}/` : '/api/riesgos/crear/';
+            const method = riskId ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Error al guardar');
+                closeModal();
+                cargarRiesgos();
+                alert(riskId ? '✅ Riesgo actualizado' : '✅ Riesgo creado');
+            } catch (error) {
+                alert('❌ Error al guardar: ' + error.message);
+            }
+        }
+
+        async function deleteRisk(id) {
+            if (!confirm('¿Está seguro de eliminar este riesgo?')) return;
+            try {
+                const response = await fetch(`/api/riesgos/eliminar/${id}/`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Error al eliminar');
+                cargarRiesgos();
+                alert('✅ Riesgo eliminado');
+            } catch (error) {
+                alert('❌ Error al eliminar: ' + error.message);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('riskModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target === document.getElementById('riskModal')) closeModal();
+        }
+
+        cargarRiesgos();
+    </script>
+</body>
+</html>

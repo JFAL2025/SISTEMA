@@ -6,10 +6,10 @@
 
 body {
     background-image: url('fondon.png');
-    background-size: contain;       /* 👈 Muestra toda la imagen */
+    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-color: #0D0D0D;     /* Color de respaldo en bordes */
+    background-color: #0D0D0D;
 }
 
 /* Estilos del Login */
@@ -22,32 +22,17 @@ body {
 }
 
 .login-box {
-    background: #0D0D0D;
+    background: #FF8C00;
     padding: 40px;
     border-radius: 15px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     width: 100%;
     max-width: 400px;
-    border: 2px solid #FFD700;
-    position: relative;
-    overflow: hidden;
-}
-
-.login-box::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 5px;
-    background: linear-gradient(90deg, #FF8C00, #FFD700, #FF8C00);
+    border: 2px solid #0D0D0D;
 }
 
 .login-box h1 {
-    background: linear-gradient(135deg, #FF8C00, #FFD700);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: #0D0D0D;
     margin-bottom: 30px;
     text-align: center;
     font-size: 2em;
@@ -60,44 +45,40 @@ body {
 .form-group label {
     display: block;
     margin-bottom: 5px;
-    color: #FFD700;
+    color: #0D0D0D;
     font-weight: bold;
 }
 
 .form-group input {
     width: 100%;
     padding: 12px;
-    border: 1px solid #333;
+    border: 1px solid #0D0D0D;
     border-radius: 8px;
     font-size: 16px;
-    background: #1A1A1A;
-    color: #FFFFFF;
-    transition: all 0.3s;
+    background: #FFFFFF;
+    color: #0D0D0D;
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: #FF8C00;
-    box-shadow: 0 0 10px rgba(255, 140, 0, 0.3);
+    border-color: #0D0D0D;
 }
 
 button {
     width: 100%;
-    background: linear-gradient(135deg, #FF8C00, #FFD700);
-    color: #000000;
+    background: #0D0D0D;
+    color: #FF8C00;
     padding: 12px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
-    transition: all 0.3s;
     font-weight: bold;
-    text-transform: uppercase;
 }
 
 button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(255, 140, 0, 0.4);
+    background: #FFFFFF;
+    color: #0D0D0D;
 }
 
 .error {
@@ -118,7 +99,7 @@ button:hover {
     text-align: center;
 }
 
-/* Estilos del Panel */
+/* Estilos del Panel - FONDO NEGRO */
 .panel-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -126,38 +107,24 @@ button:hover {
     border-radius: 15px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     overflow: hidden;
-    border: 1px solid #FFD700;
+    border: 2px solid #FF8C00;
 }
 
 .header {
-    background: linear-gradient(135deg, #FF8C00 0%, #1A1A1A 50%, #FFD700 100%);
-    color: white;
+    background: #FF8C00;
     padding: 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 20px;
-    position: relative;
-}
-
-.header::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #FF8C00, #FFD700, #FF8C00);
+    border-bottom: 3px solid #0D0D0D;
 }
 
 .header h1 {
     font-size: 2em;
     margin: 0;
-    background: linear-gradient(135deg, #FFFFFF, #FFD700);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: #0D0D0D;
 }
 
 .user-info {
@@ -167,17 +134,13 @@ button:hover {
 .user-name {
     font-size: 1.2em;
     font-weight: bold;
-    background: linear-gradient(135deg, #FFD700, #FF8C00);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: #0D0D0D;
 }
 
 .user-role {
     font-size: 0.9em;
-    opacity: 0.9;
     margin-top: 5px;
-    color: #FFFFFF;
+    color: #0D0D0D;
 }
 
 .badge {
@@ -189,108 +152,111 @@ button:hover {
 }
 
 .badge-admin {
-    background: linear-gradient(135deg, #FF8C00, #FFD700);
-    color: #000000;
+    background: #0D0D0D;
+    color: #FF8C00;
 }
 
 .badge-coordinador {
-    background: #FF8C00;
-    color: #000000;
+    background: #0D0D0D;
+    color: #FF8C00;
 }
 
 .badge-encargado {
-    background: #FFD700;
-    color: #000000;
+    background: #0D0D0D;
+    color: #FF8C00;
 }
 
 .btn-logout {
-    background: rgba(0,0,0,0.5);
-    color: #FFD700;
+    background: #0D0D0D;
+    color: #FF8C00;
     padding: 10px 20px;
     text-decoration: none;
     border-radius: 8px;
     display: inline-block;
     margin-top: 10px;
-    transition: all 0.3s;
-    border: 1px solid #FF8C00;
-    cursor: pointer;
+    border: 1px solid #0D0D0D;
     font-size: 14px;
     font-weight: bold;
 }
 
 .btn-logout:hover {
-    background: #FF8C00;
-    color: #000000;
-    transform: translateY(-2px);
-    border-color: #FFD700;
+    background: #FFFFFF;
+    color: #0D0D0D;
 }
 
 .btn-agregar {
     display: inline-block;
-    background: linear-gradient(135deg, #FF8C00, #FFD700);
-    color: #000000;
+    background: #FF8C00;
+    color: #0D0D0D;
     padding: 12px 30px;
     margin: 20px;
     text-decoration: none;
     border-radius: 8px;
     cursor: pointer;
-    border: none;
+    border: 1px solid #0D0D0D;
     width: auto;
     font-size: 16px;
-    transition: all 0.3s;
     font-weight: bold;
 }
 
 .btn-agregar:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(255, 140, 0, 0.4);
+    background: #0D0D0D;
+    color: #FF8C00;
+    border: 1px solid #FF8C00;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
+    background: #0D0D0D;
 }
 
 th, td {
     padding: 15px;
     text-align: left;
-    border-bottom: 1px solid #2A2A2A;
+    border-bottom: 1px solid #FF8C00;
 }
 
 th {
-    background: #1A1A1A;
-    color: #FFD700;
+    background: #FF8C00;
+    color: #0D0D0D;
     font-weight: bold;
 }
 
 tr:hover {
-    background: #1A1A1A;
+    background: #FF8C00;
+}
+
+tr:hover td {
+    color: #0D0D0D;
 }
 
 td {
-    color: #FFFFFF;
+    color: #FF8C00;
+    font-weight: 500;
 }
 
 .btn-editar, .btn-eliminar {
     padding: 5px 15px;
-    text-decoration: none;
     border-radius: 5px;
     margin-right: 5px;
     display: inline-block;
     border: none;
     cursor: pointer;
     font-size: 14px;
-    transition: all 0.3s;
     font-weight: bold;
-}
-
-.btn-editar:hover, .btn-eliminar:hover {
-    transform: translateY(-2px);
 }
 
 .btn-editar {
     background: #FF8C00;
-    color: #000000;
+    color: #0D0D0D;
+    border: 1px solid #0D0D0D;
+}
+
+.btn-editar:hover {
+    background: #0D0D0D;
+    color: #FF8C00;
+    border: 1px solid #FF8C00;
 }
 
 .btn-eliminar {
@@ -298,7 +264,7 @@ td {
     color: white;
 }
 
-/* Estilos de Modales */
+/* Modales */
 .modal {
     display: none;
     position: fixed;
@@ -313,44 +279,17 @@ td {
 }
 
 .modal-content {
-    background: #0D0D0D;
+    background: #FF8C00;
     padding: 30px;
     border-radius: 15px;
     width: 90%;
     max-width: 500px;
-    animation: modalFadeIn 0.3s;
-    border: 2px solid #FFD700;
-    position: relative;
-}
-
-.modal-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 5px;
-    background: linear-gradient(90deg, #FF8C00, #FFD700, #FF8C00);
-    border-radius: 15px 15px 0 0;
-}
-
-@keyframes modalFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    border: 2px solid #0D0D0D;
 }
 
 .modal-content h2 {
     margin-bottom: 20px;
-    background: linear-gradient(135deg, #FF8C00, #FFD700);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: #0D0D0D;
 }
 
 .modal-content input, 
@@ -358,23 +297,10 @@ td {
     width: 100%;
     padding: 12px;
     margin-bottom: 15px;
-    border: 1px solid #333;
+    border: 1px solid #0D0D0D;
     border-radius: 8px;
-    font-size: 14px;
-    transition: all 0.3s;
-    background: #1A1A1A;
-    color: #FFFFFF;
-}
-
-.modal-content input:focus,
-.modal-content select:focus {
-    outline: none;
-    border-color: #FF8C00;
-    box-shadow: 0 0 10px rgba(255, 140, 0, 0.3);
-}
-
-.modal-content input::placeholder {
-    color: #666;
+    background: #FFFFFF;
+    color: #0D0D0D;
 }
 
 .modal-buttons {
@@ -384,42 +310,37 @@ td {
 }
 
 .btn-guardar {
-    background: linear-gradient(135deg, #FF8C00, #FFD700);
-    color: #000000;
+    background: #0D0D0D;
+    color: #FF8C00;
     padding: 10px 20px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     flex: 1;
-    font-size: 14px;
-    transition: all 0.3s;
     font-weight: bold;
 }
 
 .btn-guardar:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(255, 140, 0, 0.4);
+    background: #FFFFFF;
+    color: #0D0D0D;
 }
 
 .btn-cancelar {
-    background: #333;
-    color: #FFD700;
+    background: #FFFFFF;
+    color: #0D0D0D;
     padding: 10px 20px;
-    border: 1px solid #FF8C00;
+    border: 1px solid #0D0D0D;
     border-radius: 8px;
     cursor: pointer;
     flex: 1;
-    font-size: 14px;
-    transition: all 0.3s;
 }
 
 .btn-cancelar:hover {
-    background: #FF8C00;
-    color: #000000;
-    transform: translateY(-2px);
+    background: #0D0D0D;
+    color: #FF8C00;
 }
 
-/* Badges de roles en la tabla */
+/* Badges */
 .rol-badge {
     display: inline-block;
     padding: 5px 12px;
@@ -429,18 +350,18 @@ td {
 }
 
 .rol-admin {
-    background: linear-gradient(135deg, #FF8C00, #FFD700);
-    color: #000000;
+    background: #FF8C00;
+    color: #0D0D0D;
 }
 
 .rol-coordinador {
     background: #FF8C00;
-    color: #000000;
+    color: #0D0D0D;
 }
 
 .rol-encargado {
-    background: #FFD700;
-    color: #000000;
+    background: #FF8C00;
+    color: #0D0D0D;
 }
 
 .rol-sin {
@@ -448,7 +369,7 @@ td {
     color: white;
 }
 
-/* Estilos responsivos */
+/* Responsive */
 @media (max-width: 768px) {
     .header {
         flex-direction: column;
@@ -463,57 +384,4 @@ td {
         display: block;
         overflow-x: auto;
     }
-    
-    th, td {
-        padding: 10px;
-        font-size: 14px;
-    }
-    
-    .btn-editar, .btn-eliminar {
-        padding: 5px 10px;
-        font-size: 12px;
-    }
-    
-    .login-box {
-        padding: 30px 20px;
-    }
-    
-    .modal-content {
-        padding: 20px;
-        margin: 20px;
-    }
-}
-
-@media (max-width: 480px) {
-    .btn-editar, .btn-eliminar {
-        display: block;
-        margin: 5px 0;
-        width: 100%;
-    }
-    
-    .modal-buttons {
-        flex-direction: column;
-    }
-    
-    .btn-guardar, .btn-cancelar {
-        width: 100%;
-    }
-}
-
-/* Scrollbar personalizada */
-::-webkit-scrollbar {
-    width: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background: #1A1A1A;
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #FF8C00, #FFD700);
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #FF8C00;
 }
