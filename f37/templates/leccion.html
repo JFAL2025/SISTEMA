@@ -9,24 +9,24 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0D0D0D; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif; }
-        .lecciones-container { max-width: 1400px; margin: 0 auto; background: #0D0D0D; border-radius: 15px; overflow: hidden; border: 1px solid #FF8C00; }
+        .lecciones-container { max-width: 1400px; margin: 0 auto; background: #0D0D0D; border-radius: 15px; overflow: hidden; border: 1px solid #FF8C00; margin-bottom: 30px; }
         .page-header { background: #FF8C00; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
         .page-header h1 { color: #0D0D0D; font-size: 24px; margin: 0; }
         .btn-volver { background: #0D0D0D; color: #FF8C00; padding: 6px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 13px; }
         
-        /* Contenedor para alinear los botones de acción del encabezado */
         .header-actions { display: flex; gap: 10px; margin: 15px 20px; }
         .btn-add { background: #FF8C00; color: #0D0D0D; padding: 8px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.3s; }
         .btn-add:hover { background: #e67e00; transform: translateY(-1px); }
         .btn-report { background: #28a745; color: white; padding: 8px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.3s; }
         .btn-report:hover { background: #218838; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(40,167,69,0.2); }
 
-        .table-container { margin: 0 20px 20px 20px; background: #1A1A1A; border-radius: 15px; overflow-x: auto; }
+        .table-section-title { color: #FF8C00; margin: 20px 20px 10px 20px; font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+
+        .table-container { margin: 0 20px 20px 20px; background: #1A1A1A; border-radius: 15px; overflow-x: auto; border: 1px solid #222; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #333; color: white; font-size: 12px; }
         th { background: #252525; color: #FF8C00; }
         
-        /* Efecto de fila clickeable para el detalle B.3 */
         tbody tr { cursor: pointer; transition: background 0.2s; }
         tbody tr:hover { background: rgba(255, 140, 0, 0.05); }
         
@@ -36,18 +36,20 @@
         th:nth-child(4), td:nth-child(4) { width: 95px; }
         th:nth-child(5), td:nth-child(5) { width: 180px; }
         th:nth-child(6), td:nth-child(6) { width: 100px; text-align: center; }
-        th:nth-child(7), td:nth-child(7) { width: 90px; text-align: center; }
+        th:nth-child(7), td:nth-child(7) { width: 110px; text-align: center; }
         
         td:last-child { text-align: center; vertical-align: middle; }
         .acciones-btns { display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center; }
-        .btn-edit, .btn-delete { 
+        
+        .btn-edit, .btn-delete, .btn-disabled { 
             padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;
-            display: block; width: 70px; text-align: center; font-weight: bold; transition: all 0.3s;
+            display: block; width: 85px; text-align: center; font-weight: bold; transition: all 0.3s;
         }
         .btn-edit { background: #FF8C00; color: #0D0D0D; }
         .btn-edit:hover { background: #e67e00; transform: translateY(-1px); }
         .btn-delete { background: #dc3545; color: white; }
         .btn-delete:hover { background: #c82333; transform: translateY(-1px); }
+        .btn-disabled { background: #333; color: #777; cursor: not-allowed; opacity: 0.6; }
         
         .badge-asignado { background: #0066CC; color: white; padding: 4px 8px; border-radius: 20px; font-size: 11px; display: inline-block; max-width: 160px; }
         .eficacia-alta, .eficacia-media, .eficacia-baja { padding: 4px 8px; font-size: 11px; display: inline-block; border-radius: 20px; }
@@ -85,6 +87,9 @@
 <body>
     {% csrf_token %}
 
+    <input type="hidden" id="usuarioLogueadoId" value="{{ usuario_id }}">
+    <input type="hidden" id="usuarioEsAdmin" value="{% if es_admin %}true{% else %}false{% endif %}">
+
     <div class="lecciones-container">
         <div class="page-header">
             <h1>📚 Gestión de Lecciones Aprendidas</h1>
@@ -96,6 +101,7 @@
             <button class="btn-report" onclick="descargarReporteAutomatorio()">📊 Generar Reporte Automático</button>
         </div>
 
+        <div class="table-section-title">📂 Mis Lecciones (Gestión y Autoría)</div>
         <div class="table-container">
             <table>
                 <thead>
@@ -110,6 +116,26 @@
                     </tr>
                 </thead>
                 <tbody id="leccionesTableBody">
+                    <tr><td colspan="7" class="loading">Cargando datos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-section-title">🎯 Columna Seguimiento (Asignadas a mí)</div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th>Fecha</th>
+                        <th>Asignado a</th>
+                        <th>Nivel Eficacia</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="seguimientoTableBody">
                     <tr><td colspan="7" class="loading">Cargando datos...</td></tr>
                 </tbody>
             </table>
@@ -178,7 +204,6 @@
         const urlBase = window.location.origin;
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-        // B.5: Función para disparar la descarga del archivo CSV
         function descargarReporteAutomatorio() {
             window.location.href = `${urlBase}/api/lecciones/exportar-csv/`;
         }
@@ -188,10 +213,12 @@
                 const response = await fetch(`${urlBase}/api/lecciones/listar/`);
                 if (!response.ok) throw new Error('Error al listar');
                 lecciones = await response.json();
-                renderTable();
+                renderTables();
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('leccionesTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center; color:#dc3545; padding:20px;">❌ Error al conectar con el servidor</td></tr>';
+                const errorTr = '<tr><td colspan="7" style="text-align:center; color:#dc3545; padding:20px;">❌ Error al conectar con el servidor</td></tr>';
+                document.getElementById('leccionesTableBody').innerHTML = errorTr;
+                document.getElementById('seguimientoTableBody').innerHTML = errorTr;
             }
         }
 
@@ -209,31 +236,93 @@
             return '<span class="badge-asignado" style="background:#444;">📌 Sin asignar</span>';
         }
 
-        function renderTable() {
-            const tbody = document.getElementById('leccionesTableBody');
-            if (!lecciones.length) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#888; padding:20px;">📭 No hay lecciones registradas</td></tr>';
-                return;
-            }
-            let html = '';
+        function renderTables() {
+            const tbodyGestion = document.getElementById('leccionesTableBody');
+            const tbodySeguimiento = document.getElementById('seguimientoTableBody');
+            
+            // 1. Intentar capturar IDs de sesión
+            const currentUserId = parseInt(document.getElementById('usuarioLogueadoId').value) || 0;
+            const esAdmin = document.getElementById('usuarioEsAdmin').value === 'true';
+
+            // 2. EXTRA: Intentar capturar el nombre real del usuario en pantalla (Para Eduar)
+            // Buscamos el texto de bienvenida que inyecta Django en la cabecera del panel o lo deducimos
+            const nombreUsuarioLogueado = "{{ usuario_logueado|escapejs }}".trim().toUpperCase();
+
+            let htmlGestion = '';
+            let htmlSeguimiento = '';
+            let countGestion = 0;
+            let countSeguimiento = 0;
+
             for (let i = 0; i < lecciones.length; i++) {
                 const l = lecciones[i];
-                html += `<tr onclick="verDetalleLeccion(${l.id_leccion_aprendida}, event)">`;
-                html += `<td><strong>#${l.id_leccion_aprendida}</strong></td>`;
-                html += `<td><span style="color:#FF8C00; font-weight:bold;">${escapeHtml(l.tipo || '')}</span></td>`;
-                html += `<td>${escapeHtml((l.descripcion || '').substring(0, 60))}${l.descripcion && l.descripcion.length > 60 ? '...' : ''}</td>`;
-                html += `<td>${l.fecha_identificacion || 'No registrada'}</td>`;
-                html += `<td>${getAsignadoNombre(l.asignado_a_id, l.assigned_nombre)}</td>`;
-                html += `<td>${getEficaciaBadge(l.nivel_eficacia)}</td>`;
-                html += `<td>
-                            <div class="acciones-btns">
-                                <button class="btn-edit" onclick="editLeccion(${l.id_leccion_aprendida}, event)">✏️ Editar</button>
-                                <button class="btn-delete" onclick="deleteLeccion(${l.id_leccion_aprendida}, event)">🗑️ Eliminar</button>
-                            </div>
-                         </td>`;
-                html += '</tr>';
+                
+                // Mapeo de IDs
+                const creadorId = parseInt(l.creador_id || l.usuario_id || l.id_usuario || l.usuario || l.creador) || 0; 
+                const asignadoId = parseInt(l.asignado_a_id || l.asignado_a || l.responsable_id || l.asignado) || 0;
+
+                // Capturar el nombre del asignado en formato texto plano
+                const nombreAsignadoEnBD = (l.assigned_nombre || l.asignado_nombre || l.nombre_asignado || l.usuario_asignado || '').trim().toUpperCase();
+
+                // DETECTOR DE ASIGNACIÓN IMPLACABLE:
+                // Si el ID asignado es el mío OR si mi nombre coincide textualmente con el asignado en la BD
+                let estaAsignadoAMi = (asignadoId === currentUserId && currentUserId !== 0);
+                
+                // Si no hay IDs válidos (ambos dieron 0), desempatamos buscando el nombre de Eduar textualmente
+                if (asignadoId === 0 || currentUserId === 0) {
+                    if (nombreAsignadoEnBD.includes("EDUAR") || (nombreUsuarioLogueado !== "" && nombreAsignadoEnBD.includes(nombreUsuarioLogueado))) {
+                        estaAsignadoAMi = true;
+                    }
+                }
+
+                // Determinamos autoría: Si está asignado a mí mas yo no guardé el registro, soy SOLO ASIGNADO
+                // (Para despatar si los IDs se evalúan como 0 === 0, validamos que no se cuele en gestión)
+                let esSoloAsignadoSeguimiento = estaAsignadoAMi;
+                
+                // Si la lección no tiene relación conmigo ni con el admin, continuar
+                if (!esAdmin && creadorId !== currentUserId && asignadoId !== currentUserId && !estaAsignadoAMi) {
+                    // Opcional: Si deseas que un coordinador vea todo, puedes comentar este bloque 'continue'
+                    // continue; 
+                }
+
+                // Maquetación estructural de la fila
+                let rowHtml = `<tr onclick="verDetalleLeccion(${l.id_leccion_aprendida || l.id}, event)">`;
+                rowHtml += `<td><strong>#${l.id_leccion_aprendida || l.id}</strong></td>`;
+                rowHtml += `<td><span style="color:#FF8C00; font-weight:bold;">${escapeHtml(l.tipo || '')}</span></td>`;
+                rowHtml += `<td>${escapeHtml((l.descripcion || '').substring(0, 60))}${l.descripcion && l.descripcion.length > 60 ? '...' : ''}</td>`;
+                rowHtml += `<td>${l.fecha_identificacion || l.fecha || 'No registrada'}</td>`;
+                rowHtml += `<td>${getAsignadoNombre(l.asignado_a_id || l.asignado_a, l.assigned_nombre || l.asignado_nombre)}</td>`;
+                rowHtml += `<td>${getEficaciaBadge(l.nivel_eficacia || l.eficacia)}</td>`;
+                
+                // Control estricto de botones de acción
+                if (esSoloAsignadoSeguimiento) {
+                    rowHtml += `<td>
+                        <div class="acciones-btns">
+                            <button class="btn-disabled" title="Modo lectura para personal asignado">👁️ Lectura</button>
+                        </div>
+                    </td>`;
+                } else {
+                    rowHtml += `<td>
+                        <div class="acciones-btns">
+                            <button class="btn-edit" onclick="editLeccion(${l.id_leccion_aprendida || l.id}, event)">✏️ Editar</button>
+                            <button class="btn-delete" onclick="deleteLeccion(${l.id_leccion_aprendida || l.id}, event)">🗑️ Eliminar</button>
+                        </div>
+                    </td>`;
+                }
+                rowHtml += '</tr>';
+
+                // Clasificación física final de las filas en las tablas
+                if (esSoloAsignadoSeguimiento) {
+                    htmlSeguimiento += rowHtml;
+                    countSeguimiento++;
+                } else {
+                    htmlGestion += rowHtml;
+                    countGestion++;
+                }
             }
-            tbody.innerHTML = html;
+
+            // Renderizado en el DOM
+            tbodyGestion.innerHTML = countGestion > 0 ? htmlGestion : '<tr><td colspan="7" style="text-align:center; color:#888; padding:20px;">📭 No tienes lecciones en tu bandeja de gestión</td></tr>';
+            tbodySeguimiento.innerHTML = countSeguimiento > 0 ? htmlSeguimiento : '<tr><td colspan="7" style="text-align:center; color:#888; padding:20px;">📭 No tienes tareas asignadas en tu columna de seguimiento</td></tr>';
         }
 
         function escapeHtml(text) {
@@ -257,13 +346,22 @@
 
         function verDetalleLeccion(id, event) {
             if (event.target.tagName === 'BUTTON') return; 
-            const leccion = lecciones.find(l => l.id_leccion_aprendida === id);
+            const leccion = lecciones.find(l => (l.id_leccion_aprendida || l.id) === id);
             if (!leccion) return;
 
+            const currentUserId = parseInt(document.getElementById('usuarioLogueadoId').value) || 0;
+            const esAdmin = document.getElementById('usuarioEsAdmin').value === 'true';
+            const creadorId = parseInt(leccion.creador_id || leccion.usuario_id || leccion.id_usuario || leccion.usuario || leccion.creador || 0);
+
             editLeccion(id, event);
-            document.getElementById('modalTitle').textContent = `🔍 B.3 Detalle de la Lección #${id}`;
-            setFormReadOnly(true);
-            document.getElementById('btnGuardarModal').style.display = 'none';
+            
+            if (!esAdmin && creadorId !== currentUserId) {
+                document.getElementById('modalTitle').textContent = `🔍 Detalle de Asignación #${id}`;
+                setFormReadOnly(true);
+                document.getElementById('btnGuardarModal').style.display = 'none';
+            } else {
+                document.getElementById('modalTitle').textContent = `✏️ Editar Lección Aprendida #${id}`;
+            }
         }
 
         function setFormReadOnly(status) {
@@ -273,22 +371,20 @@
 
         function editLeccion(id, event) {
             if(event) event.stopPropagation();
-            const leccion = lecciones.find(l => l.id_leccion_aprendida === id);
+            const leccion = lecciones.find(l => (l.id_leccion_aprendida || l.id) === id);
             if (!leccion) return;
             
             openModal();
             
-            document.getElementById('leccionId').value = leccion.id_leccion_aprendida;
+            document.getElementById('leccionId').value = leccion.id_leccion_aprendida || leccion.id;
             document.getElementById('tipo').value = leccion.tipo || '';
-            document.getElementById('fecha_identificacion').value = leccion.fecha_identificacion || '';
+            document.getElementById('fecha_identificacion').value = leccion.fecha_identificacion || leccion.fecha || '';
             document.getElementById('descripcion').value = leccion.descripcion || '';
             document.getElementById('impacto_situacion').value = leccion.impacto_situacion || '';
             document.getElementById('recomendacion').value = leccion.recomendacion || '';
             document.getElementById('accion_tomar').value = leccion.accion_tomar || '';
             document.getElementById('justificacion').value = leccion.justificacion || '';
-            document.getElementById('asignado_a').value = leccion.asignado_a_id || '';
-            
-            document.getElementById('modalTitle').textContent = '✏️ Editar Lección Aprendida';
+            document.getElementById('asignado_a').value = leccion.asignado_a_id || leccion.asignado_a || '';
         }
 
         async function saveLeccion() {
